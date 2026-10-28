@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEGO Marvel - Morning Brief Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Oswald (Cinematic/Comic) & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Oswald:wght@500;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f172a;
+      /* Halftone / Comic book dot pattern overlay */
+      background-image: 
+        radial-gradient(ellipse at 50% 0%, rgba(226, 54, 54, 0.15), transparent 70%),
+        radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 20px 20px;
+    }
+
+    .font-marvel {
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Marvel Red */
+    .bg-marvel-red { background-color: #ec1d24; }
+    .text-marvel-red { color: #ec1d24; }
+    .border-marvel-red { border-color: #ec1d24; }
+
+    /* Glow effects */
+    .glow-red {
+      box-shadow: 0 0 25px rgba(236, 29, 36, 0.4);
+    }
+    .glow-blue {
+      box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
+    }
+
+    @keyframes pulseTimer {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .animate-danger-pulse {
+      animation: pulseTimer 0.6s infinite ease-in-out;
+    }
+    
+    /* Boutons de réponses */
+    .option-btn {
+      transition: all 0.2s ease;
+    }
+    .option-btn:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-100 flex flex-col justify-between selection:bg-red-500 selection:text-white">
+
+  <!-- HEADER -->
+  <header class="w-full border-b border-red-500/20 bg-slate-900/90 backdrop-blur-md sticky top-0 z-50 px-4 py-3 shadow-lg shadow-red-900/10">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="app.showScreen('welcome')">
+        <!-- LEGO Brick Icon (Red) -->
+        <div class="w-10 h-10 bg-marvel-red rounded-lg flex items-center justify-center font-black text-white shadow-md border-2 border-red-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+            <path d="M19 6V5a2 2 0 0 0-2-2 2 2 0 0 0-2 2v1H9V5a2 2 0 0 0-2-2 2 2 0 0 0-2 2v1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-3zM7 5a1 1 0 0 1 2 0v1H7V5zm8 0a1 1 0 0 1 2 0v1h-2V5z"/>
+          </svg>
+        </div>
+        <div>
+          <span class="text-[10px] sm:text-xs uppercase font-extrabold tracking-widest text-red-400 block">LEGO Store Brief</span>
+          <h1 class="text-lg md:text-2xl font-marvel font-black tracking-tight text-white flex items-center gap-2">
+            MARVEL <span class="bg-white text-marvel-red px-1.5 py-0.5 rounded-sm text-sm md:text-base leading-none">QUIZ</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Header actions -->
+      <div class="flex items-center gap-2">
+        <button onclick="app.showLeaderboard()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs md:text-sm font-semibold border border-slate-700 transition flex items-center gap-1.5 text-slate-200">
+          🏆 <span class="hidden sm:inline">Classement</span>
+        </button>
+        <button id="soundToggleBtn" onclick="app.toggleSound()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-red-400 border border-slate-700 transition" title="Activer / Couper les bruitages">
+          <svg id="soundIconOn" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+          </svg>
+          <svg id="soundIconOff" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z m12.414-4.586L21 7.414M18 10.414l3 3"/>
+          </svg>
+        </button>
+        <button onclick="app.openCustomModal()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs md:text-sm font-semibold border border-slate-700 transition flex items-center gap-1.5 text-slate-200">
+          <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span class="hidden sm:inline">Ajouter des</span> Questions
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-grow flex items-center justify-center p-4 max-w-4xl w-full mx-auto relative z-10">
+
+    <!-- SCREEN 1: ACCUEIL & CHOIX DU MODE -->
+    <section id="screen-welcome" class="w-full text-center space-y-8 py-6">
+      <div class="space-y-3">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-xs uppercase tracking-wider font-bold">
+          🛡️ Rassemblement de l'équipe !
+        </div>
+        <h2 class="text-4xl md:text-6xl font-black font-marvel text-transparent bg-clip-text bg-gradient-to-br from-red-400 via-red-600 to-red-800 drop-shadow-lg uppercase">
+          Le Brief du Multivers
+        </h2>
+        <p class="text-slate-400 max-w-lg mx-auto text-sm md:text-base">
+          Testez vos connaissances sur l'univers Marvel et les secrets des sets LEGO avant de rejoindre le floor !
+        </p>
+      </div>
+
+      <!-- Sélection du mode -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-left max-w-2xl mx-auto">
+        <!-- Mode Solo / Flash -->
+        <div onclick="app.openNameSetup('solo')" class="group relative bg-slate-800/80 hover:bg-slate-700/90 border border-slate-600 hover:border-blue-400 p-6 rounded-2xl cursor-pointer transition duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-blue-500/20">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xl border border-blue-400/30">
+              ⚡
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20 font-semibold">Initiative Avengers</span>
+          </div>
+          <h3 class="text-xl font-bold font-marvel text-white group-hover:text-blue-400 transition mb-1 tracking-wide">Mode Collectif / Solo</h3>
+          <p class="text-sm text-slate-400">Idéal projeté sur grand écran : toute l'équipe répond ensemble ou un collègue est tiré au sort.</p>
+        </div>
+
+        <!-- Mode Duel Équipes -->
+        <div onclick="app.openNameSetup('duel')" class="group relative bg-slate-800/80 hover:bg-slate-700/90 border border-slate-600 hover:border-red-500 p-6 rounded-2xl cursor-pointer transition duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-red-500/20">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center font-bold text-xl border border-red-400/30">
+              ⚔️
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-red-500/10 text-red-300 border border-red-500/20 font-semibold">Guerre Secrète</span>
+          </div>
+          <h3 class="text-xl font-bold font-marvel text-white group-hover:text-red-400 transition mb-1 tracking-wide">Duel de Floor (2 Équipes)</h3>
+          <p class="text-sm text-slate-400">Avengers vs X-Men ! Chaque équipe répond à tour de rôle pour remporter la victoire du matin.</p>
+        </div>
+      </div>
+
+      <!-- Quick Settings -->
+      <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-400 pt-4">
+        <label class="flex items-center gap-2 cursor-pointer bg-slate-800/90 px-4 py-2 rounded-xl border border-slate-700 hover:bg-slate-700 transition">
+          <input type="checkbox" id="timerEnabledCheck" checked class="w-4 h-4 text-red-500 accent-red-600 rounded">
+          <span>Minuteur de 15 secondes</span>
+        </label>
+        <span class="text-slate-600">•</span>
+        <div class="text-xs text-slate-500">
+          Base : <span id="poolCountText" class="text-red-400 font-bold">100</span> questions prêtes
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: QUESTION EN COURS -->
+    <section id="screen-quiz" class="w-full hidden space-y-6">
+
+      <!-- Barre d'état (Scores, Tour, Minuteur) -->
+      <div class="bg-slate-800/90 backdrop-blur-md rounded-2xl p-4 border border-slate-700 flex flex-wrap items-center justify-between gap-4 shadow-lg">
+        <!-- Info progression -->
+        <div class="flex items-center gap-3">
+          <span class="text-xs uppercase font-extrabold tracking-wider px-2.5 py-1 rounded bg-slate-900 text-red-400 border border-red-500/30 font-marvel" id="currentRoundBadge">
+            Q1 / 10
+          </span>
+          <span class="text-xs font-semibold px-2.5 py-1 rounded-md" id="categoryBadge">
+            LEGO Marvel
+          </span>
+        </div>
+
+        <!-- Mode Duel Status -->
+        <div id="duelHeaderWidget" class="hidden flex items-center gap-4 text-xs font-bold">
+          <div id="teamAStatus" class="px-3 py-1.5 rounded-lg border transition">
+            <span class="text-blue-400 font-marvel tracking-wide" id="uiTeamAName">AVENGERS</span> : <span id="teamAScore" class="text-white text-sm">0</span>
+          </div>
+          <span class="text-slate-500 font-black font-marvel italic text-lg">VS</span>
+          <div id="teamBStatus" class="px-3 py-1.5 rounded-lg border transition">
+            <span class="text-red-400 font-marvel tracking-wide" id="uiTeamBName">X-MEN</span> : <span id="teamBScore" class="text-white text-sm">0</span>
+          </div>
+        </div>
+
+        <!-- Solo Score -->
+        <div id="soloHeaderWidget" class="text-sm font-semibold text-slate-300">
+          <span id="uiSoloName" class="font-marvel tracking-wide">Score</span> : <span id="soloScore" class="text-red-400 font-marvel font-bold text-xl">0</span> pts
+        </div>
+
+        <!-- Timer Circle -->
+        <div id="timerContainer" class="flex items-center gap-2 font-marvel">
+          <div id="timerBox" class="w-11 h-11 rounded-full bg-slate-900 border-2 border-red-500 flex items-center justify-center font-black text-red-400 text-lg transition-colors shadow-[0_0_10px_rgba(236,29,36,0.3)]">
+            15
+          </div>
+        </div>
+      </div>
+
+      <!-- Turn Indicator for Duel Mode -->
+      <div id="teamTurnIndicator" class="hidden text-center py-1">
+        <p class="text-sm font-bold tracking-wide uppercase font-marvel text-xl" id="teamTurnText">
+          C'est au tour des <span class="text-blue-400">AVENGERS</span> !
+        </p>
+      </div>
+
+      <!-- Question Card -->
+      <div class="bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-2xl">
+        <!-- Bandeau décoratif style comics -->
+        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-600 via-red-500 to-red-700"></div>
+
+        <div class="min-h-[100px] flex items-center justify-center text-center mt-2">
+          <h3 id="questionText" class="text-xl md:text-2xl font-bold text-white leading-snug">
+            Question en chargement...
+          </h3>
+        </div>
+
+        <!-- Options Container -->
+        <div id="optionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mt-8">
+          <!-- Injecté dynamiquement -->
+        </div>
+
+        <!-- Feedback & Explication -->
+        <div id="feedbackContainer" class="hidden mt-6 p-4 rounded-xl border transition-all text-center space-y-2">
+          <div id="feedbackTitle" class="font-marvel font-bold text-xl tracking-wide uppercase"></div>
+          <p id="feedbackExplanation" class="text-sm text-slate-300"></p>
+          <button id="nextBtn" onclick="app.nextQuestion()" class="mt-4 px-6 py-2.5 bg-marvel-red hover:bg-red-700 text-white font-extrabold font-marvel text-lg tracking-wider rounded-xl transition shadow-lg inline-flex items-center gap-2">
+            <span>QUESTION SUIVANTE</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: RÉSULTATS / BILAN DU BRIEF -->
+    <section id="screen-results" class="w-full hidden text-center space-y-8 py-6">
+      <div class="space-y-3">
+        <div class="inline-block p-4 rounded-full bg-red-500/10 border border-red-500/30 text-5xl mb-2" id="resultTrophyIcon">
+          🛡️
+        </div>
+        <h2 id="resultMainTitle" class="text-4xl md:text-5xl font-marvel font-black text-white uppercase tracking-widest drop-shadow-md">
+          MISSION ACCOMPLIE !
+        </h2>
+        <p id="resultSubtitle" class="text-slate-400 max-w-md mx-auto text-sm md:text-base">
+          Le multivers est sauf. Voici le bilan des forces en présence.
+        </p>
+      </div>
+
+      <!-- Bilan Card -->
+      <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8 max-w-xl mx-auto shadow-2xl space-y-6 relative overflow-hidden">
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-red-600/10 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl"></div>
+
+        <div id="soloScoreDisplay" class="space-y-2 relative z-10">
+          <p class="text-xs uppercase tracking-widest text-slate-400 font-bold font-marvel text-lg">Score Global</p>
+          <div class="text-6xl font-marvel font-black text-red-500 drop-shadow-md" id="finalScoreVal">8 / 10</div>
+          <div class="text-sm font-semibold text-white pt-2 bg-slate-900/50 inline-block px-4 py-1.5 rounded-full border border-slate-600" id="rankTitleBadge">Rang : Avenger Honoraire</div>
+        </div>
+
+        <div id="duelScoreDisplay" class="hidden space-y-5 relative z-10">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="p-5 rounded-2xl bg-blue-950/50 border border-blue-500/40 shadow-inner">
+              <span id="finalUiTeamAName" class="text-sm uppercase font-black font-marvel tracking-widest text-blue-400 block mb-1">AVENGERS</span>
+              <span id="finalTeamAScore" class="text-5xl font-black font-marvel text-white">0</span>
+            </div>
+            <div class="p-5 rounded-2xl bg-red-950/50 border border-red-500/40 shadow-inner">
+              <span id="finalUiTeamBName" class="text-sm uppercase font-black font-marvel tracking-widest text-red-400 block mb-1">X-MEN</span>
+              <span id="finalTeamBScore" class="text-5xl font-black font-marvel text-white">0</span>
+            </div>
+          </div>
+          <div id="duelWinnerText" class="text-xl font-bold font-marvel text-white tracking-wide uppercase bg-slate-900/50 py-2 rounded-lg border border-slate-700">
+            Victoire écrasante des Avengers !
+          </div>
+        </div>
+
+        <!-- Conseil / Punchline LEGO pour la journée -->
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-700 text-left flex gap-3 items-center relative z-10">
+          <span class="text-2xl">🕸️</span>
+          <div class="text-xs md:text-sm text-slate-300">
+            <strong class="text-white block font-marvel text-base tracking-wide">OBJECTIF DU JOUR :</strong>
+            <span id="dailyMotto">Un grand pouvoir implique de grandes ventes sur le mur Pick-A-Brick !</span>
+          </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="flex flex-col sm:flex-row gap-3 justify-center pt-4 relative z-10">
+          <button onclick="app.showScreen('welcome')" class="px-6 py-3 rounded-xl bg-marvel-red hover:bg-red-700 text-white font-marvel tracking-wider text-lg transition shadow-lg shadow-red-900/50">
+            MENU PRINCIPAL
+          </button>
+          <button onclick="app.restartWithSameSettings()" class="px-6 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-marvel tracking-wider text-lg border border-slate-600 transition">
+            REVANCHE
+          </button>
+          <button onclick="app.showLeaderboard()" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-400 font-marvel tracking-wider text-lg border border-blue-500/30 transition">
+            CLASSEMENT
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: CLASSEMENT -->
+    <section id="screen-leaderboard" class="w-full hidden text-center space-y-8 py-6 relative z-10">
+      <div class="space-y-3">
+        <h2 class="text-4xl md:text-5xl font-marvel font-black text-white uppercase tracking-widest drop-shadow-md">
+          ARCHIVES DU S.H.I.E.L.D.
+        </h2>
+        <p class="text-slate-400 max-w-md mx-auto text-sm md:text-base">
+          L'historique des meilleurs agents de votre LEGO Store.
+        </p>
+      </div>
+
+      <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 md:p-8 max-w-2xl mx-auto shadow-2xl">
+        <!-- Onglets -->
+        <div class="flex gap-4 border-b border-slate-700 mb-6 pb-2 justify-center font-marvel text-lg tracking-wide">
+          <button onclick="app.renderLeaderboardList('solo')" id="tabSolo" class="text-red-400 border-b-2 border-red-500 px-4 py-2">CLASSEMENT SOLO</button>
+          <button onclick="app.renderLeaderboardList('duel')" id="tabDuel" class="text-slate-500 hover:text-slate-300 px-4 py-2 transition">HISTORIQUE DUELS</button>
+        </div>
+
+        <div id="leaderboardList" class="space-y-3 text-left">
+          <!-- Injecté dynamiquement -->
+        </div>
+        
+        <div class="mt-8 flex justify-center gap-4">
+          <button onclick="app.showScreen('welcome')" class="px-6 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-marvel tracking-wider text-lg transition border border-slate-600">
+            RETOUR À L'ACCUEIL
+          </button>
+          <button onclick="app.clearLeaderboard()" class="px-4 py-2.5 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-400 font-semibold text-xs border border-red-900 transition flex items-center">
+            Vider l'historique
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: CHOIX DES NOMS -->
+  <div id="nameSetupModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl shadow-red-900/20">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
+        <h3 class="text-xl font-bold font-marvel tracking-wider text-white uppercase">Identification S.H.I.E.L.D.</h3>
+        <button onclick="app.closeNameSetup()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
+      </div>
+      
+      <form id="nameSetupForm" onsubmit="app.startWithNames(event)" class="space-y-4 text-sm">
+        <div id="soloNameInput" class="space-y-2">
+          <label class="block text-slate-300 text-xs font-semibold">Nom de l'Agent (ou du groupe)</label>
+          <input type="text" id="participantName" placeholder="Ex: Tony Stark, L'équipe Vente..." class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:outline-none focus:border-red-500 transition">
+        </div>
+
+        <div id="duelNameInputs" class="space-y-4 hidden">
+          <div>
+            <label class="block text-blue-400 text-xs font-bold font-marvel tracking-wide uppercase mb-1">Équipe 1 (Bleu)</label>
+            <input type="text" id="team1Name" placeholder="Ex: Les Avengers, Vendeurs..." class="w-full bg-slate-900 border border-blue-500/50 rounded-lg p-3 text-white focus:outline-none focus:border-blue-400 transition">
+          </div>
+          <div>
+            <label class="block text-red-400 text-xs font-bold font-marvel tracking-wide uppercase mb-1">Équipe 2 (Rouge)</label>
+            <input type="text" id="team2Name" placeholder="Ex: Les X-Men, Managers..." class="w-full bg-slate-900 border border-red-500/50 rounded-lg p-3 text-white focus:outline-none focus:border-red-400 transition">
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-4">
+          <button type="button" onclick="app.closeNameSetup()" class="px-5 py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-marvel tracking-wide text-lg transition">ANNULER</button>
+          <button type="submit" class="px-6 py-2.5 rounded-lg bg-marvel-red hover:bg-red-700 text-white font-marvel tracking-widest text-lg shadow-lg shadow-red-500/30 transition">LANCER LE BRIEF</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AJOUT DE QUESTION -->
+  <div id="customModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
+        <h3 class="text-xl font-bold font-marvel text-red-400 tracking-wider">CRÉER UNE MISSION (QUESTION)</h3>
+        <button onclick="app.closeCustomModal()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
+      </div>
+      <form id="addQuestionForm" onsubmit="app.handleCustomQuestionSubmit(event)" class="space-y-4 text-sm">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Intitulé de la question</label>
+          <textarea id="custQText" required rows="2" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white focus:border-red-500 focus:outline-none" placeholder="Ex: Quel est le nom du marteau de Thor ?"></textarea>
+        </div>
+        <div>
+          <label class="block text-emerald-400 font-bold mb-1">Bonne réponse</label>
+          <input type="text" id="custQCorrect" required class="w-full bg-emerald-950/30 border border-emerald-500/50 rounded-lg p-2 text-white focus:border-emerald-400 focus:outline-none" placeholder="Ex: Mjolnir">
+        </div>
+        <div class="space-y-2">
+          <label class="block text-red-400 font-bold">Mauvaises réponses</label>
+          <input type="text" id="custQWrong1" required class="w-full bg-red-950/30 border border-red-500/50 rounded-lg p-2 text-white focus:border-red-400 focus:outline-none" placeholder="Fausse réponse 1 (ex: Stormbreaker)">
+          <input type="text" id="custQWrong2" class="w-full bg-red-950/30 border border-red-500/50 rounded-lg p-2 text-white focus:border-red-400 focus:outline-none" placeholder="Fausse réponse 2 (Optionnelle)">
+          <input type="text" id="custQWrong3" class="w-full bg-red-950/30 border border-red-500/50 rounded-lg p-2 text-white focus:border-red-400 focus:outline-none" placeholder="Fausse réponse 3 (Optionnelle)">
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Anecdote / Explication (Optionnel)</label>
+          <textarea id="custQExpl" rows="2" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white focus:border-red-500 focus:outline-none" placeholder="Ex: Seul celui qui en est digne peut le soulever..."></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-700">
+          <button type="button" onclick="app.closeCustomModal()" class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-marvel tracking-wide text-lg">ANNULER</button>
+          <button type="submit" class="px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-marvel tracking-widest text-lg shadow-lg">AJOUTER</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="w-full text-center py-4 text-xs text-slate-500 border-t border-slate-800/80 relative z-10 bg-slate-900/50 mt-auto">
+    <p>Conçu pour animer le brief d'équipe • LEGO® & Marvel™ • Avengers Rassemblement sur le Floor ! 🦸‍♂️</p>
+  </footer>
+
+  <script>
+    /**
+     * BANQUE DE 100 QUESTIONS MARVEL & LEGO MARVEL
+     */
+    const INITIAL_QUESTIONS = [
+      // SETS LEGO GEANTS & ARCHITECTURE
+      { question: "Combien de pièces composent l'imposant set de la Tour des Avengers (76269) sorti en 2023 ?", options: ["5 201 pièces", "3 772 pièces", "4 890 pièces", "6 120 pièces"], correct: 0, category: "Gros Sets LEGO", explanation: "Avec 5 201 pièces, c'est le set LEGO Marvel le plus volumineux à sa sortie, incluant un casting incroyable de 31 figurines !" },
+      { question: "Quel set Marvel de 2021 (76178) détient le record de hauteur avec ses 82 cm de haut ?", options: ["Le Daily Bugle", "Le Sanctum Sanctorum", "La Tour des Avengers", "Le QG des Gardiens"], correct: 0, category: "Gros Sets LEGO", explanation: "Le Daily Bugle de 3 772 pièces est un gratte-ciel vertigineux rempli d'œufs de Pâques sur l'univers de Spider-Man." },
+      { question: "Dans le set du Sanctum Sanctorum (76218), quelle est l'une des fonctionnalités modulaires principales ?", options: ["On peut changer les portails mystiques sur les murs", "Le toit s'ouvre avec une télécommande", "Il s'attache à la Tour Eiffel", "Il flotte magnétiquement"], correct: 0, category: "Sets Modulaires", explanation: "On peut déplacer les panneaux muraux avec des portails magiques pour faire apparaître différents royaumes (ou Gargantos) !" },
+      { question: "Quel vaisseau géant du S.H.I.E.L.D. a eu droit à une version UCS de près de 3000 pièces en 2015 ?", options: ["L'Héliporteur (Helicarrier)", "Le Quinjet", "Le Zephyr One", "Le Milano"], correct: 0, category: "Gros Sets LEGO", explanation: "Le Helicarrier (76042) inclut des micro-figurines pour donner une impression de gigantisme au pont d'envol." },
+      { question: "Lequel de ces gros vaisseaux des Gardiens de la Galaxie a été édité en version détaillée en 2021 (76193) ?", options: ["Le Benatar (Vaisseau des Gardiens)", "Le Milano", "Le Bowie", "Le Quadrant"], correct: 0, category: "Vaisseaux LEGO", explanation: "Le Benatar (The Guardians' Ship), fourni avec un superbe présentoir rotatif, est l'un des vaisseaux les plus appréciés des fans." },
+      
+      // HISTOIRE LEGO MARVEL
+      { question: "En quelle année est sortie la toute première vague de sets LEGO Marvel Super Heroes ?", options: ["2012", "2008", "2015", "1999"], correct: 0, category: "Histoire LEGO", explanation: "En 2012, pour accompagner la sortie du film Avengers au cinéma (la gamme DC était sortie quelques mois plus tôt)." },
+      { question: "Quelle figurine exclusive a été distribuée à la Toy Fair de New York en 2012 et vaut aujourd'hui une fortune ?", options: ["Iron Man et Captain America (têtes imprimées différemment)", "Spider-Man symbiote", "Stan Lee", "Deadpool en costume blanc"], correct: 0, category: "Minifigs Rares", explanation: "Les toutes premières versions d'Iron Man (avec casque imprimé sur une tête normale) et Captain America (costume Bucky Barnes) y ont été distribuées à très peu d'exemplaires." },
+      { question: "Quel format de figurines massives (comme Hulk ou Thanos) est souvent utilisé par LEGO dans la gamme Marvel ?", options: ["Les Big-Figs", "Les Maxifigs", "Les Duplo-figs", "Les Titan-figs"], correct: 0, category: "Minifigures", explanation: "Les Big-figs (figurines géantes moulées d'une ou quelques pièces) sont parfaites pour représenter les colosses comme Hulk, Thanos ou le Fléau." },
+      { question: "Dans le premier jeu vidéo LEGO Marvel Super Heroes (2013), quel personnage mythique faut-il sauver dans les niveaux pour le débloquer ?", options: ["Stan Lee (Stan Lee en péril)", "Kevin Feige", "Jack Kirby", "Deadpool"], correct: 0, category: "Jeux Vidéo LEGO", explanation: "Il fallait sauver Stan Lee dans tous les niveaux (l'équivalent du Citoyen en péril ou de l'Étudiant en danger)." },
+      { question: "Parmi ces personnages, lequel a eu droit à sa propre tête géante (buste) à construire en briques LEGO (76187) ?", options: ["Venom", "Thanos", "Hulk", "Captain America"], correct: 0, category: "Casques / Bustes", explanation: "Venom (et Carnage) ont eu droit à des bustes effrayants très détaillés avec leurs immenses mâchoires et langues." },
+      
+      // LORE MCU : FILMS & DATES
+      { question: "Quel est le tout premier film de l'Univers Cinématographique Marvel (MCU) sorti en 2008 ?", options: ["Iron Man", "L'Incroyable Hulk", "Captain America", "Thor"], correct: 0, category: "Cinéma MCU", explanation: "Iron Man, réalisé par Jon Favreau et porté par Robert Downey Jr., a lancé le succès colossal du MCU." },
+      { question: "Combien y a-t-il de Pierres d'Infinité dans le MCU ?", options: ["6", "5", "7", "4"], correct: 0, category: "Lore MCU", explanation: "Il y en a 6 : Espace (Bleu), Réalité (Rouge), Pouvoir (Violet), Esprit (Jaune), Temps (Vert) et Âme (Orange)." },
+      { question: "Qui est le réalisateur des films Avengers: Infinity War et Endgame ?", options: ["Les frères Russo (Joe & Anthony)", "Joss Whedon", "Jon Favreau", "James Gunn"], correct: 0, category: "Cinéma MCU", explanation: "Les frères Russo ont réalisé les deux plus gros crossovers de la saga, ainsi que Le Soldat de l'Hiver et Civil War." },
+      { question: "Sur quelle planète Thanos sacrifie-t-il Gamora pour obtenir la Pierre de l'Âme ?", options: ["Vormir", "Titan", "Knowhere", "Nidavellir"], correct: 0, category: "Planètes", explanation: "Vormir, où Crâne Rouge (Red Skull) est maudit et condamné à guider les autres vers un trésor qu'il ne peut posséder." },
+      { question: "Que dit Tony Stark à sa fille Morgan avant de dormir, une réplique devenue culte ?", options: ["Je t'aime plus que 3000", "Je t'aime 3000", "Tu es mon armure", "Avengers, rassemblement"], correct: 0, category: "Citations", explanation: "'I love you 3000' (Je t'aime 3000) est inspiré d'une phrase que l'un des enfants de Robert Downey Jr. lui disait." },
+      
+      // LORE MARVEL : PERSONNAGES & COMICS
+      { question: "Quel est le vrai nom de Spider-Man ?", options: ["Peter Parker", "Miles Morales", "Eddie Brock", "Harry Osborn"], correct: 0, category: "Personnages", explanation: "Peter Parker est le Spider-Man original, bien que Miles Morales ou Miguel O'Hara portent aussi ce nom dans le multivers." },
+      { question: "De quel métal quasi indestructible est fait le bouclier de Captain America ?", options: ["Le Vibranium", "L'Adamantium", "L'Uru", "Le Carbonadium"], correct: 0, category: "Armes & Objets", explanation: "Le Vibranium, un métal rare provenant principalement du Wakanda, capable d'absorber l'énergie cinétique." },
+      { question: "Comment s'appelle le marteau mythique de Thor ?", options: ["Mjolnir", "Stormbreaker", "Gungnir", "Jarnbjorn"], correct: 0, category: "Armes & Objets", explanation: "Mjolnir, forgé dans le cœur d'une étoile mourante. Seul celui qui en est digne peut le soulever." },
+      { question: "Qui est le roi du Wakanda ?", options: ["T'Challa (Black Panther)", "M'Baku", "N'Jadaka (Killmonger)", "Namor"], correct: 0, category: "Personnages", explanation: "T'Challa (interprété par le regretté Chadwick Boseman) est le roi et protecteur du Wakanda." },
+      { question: "Quelle équipe de super-héros est considérée comme la 'Première Famille' de Marvel ?", options: ["Les Quatre Fantastiques", "Les X-Men", "Les Avengers", "Les Inhumains"], correct: 0, category: "Comics Lore", explanation: "Les Quatre Fantastiques (Mr Fantastique, la Femme Invisible, la Torche Humaine et la Chose), créés en 1961 par Stan Lee et Jack Kirby." },
+      
+      // QUESTIONS MIXTES : 21 à 100
+      { question: "Dans le set LEGO du Gant de l'Infini (76191), quelle action emblématique peut-on reproduire grâce aux doigts articulés ?", options: ["Le claquement de doigts (Le Snap)", "Un poing fermé classique", "Tenir une arme LEGO", "Faire un signe peace"], correct: 0, category: "Sets Cultes", explanation: "Les doigts articulés permettent de positionner le gant exactement au moment du célèbre claquement (Snap) de Thanos !" },
+      { question: "Dans le MCU, qui a créé Ultron ?", options: ["Tony Stark et Bruce Banner", "Hank Pym", "Le S.H.I.E.L.D.", "Thanos"], correct: 0, category: "Lore MCU", explanation: "Dans le MCU, Tony et Bruce créent Ultron (contrairement aux comics où c'est Hank Pym, le premier Ant-Man)." },
+      { question: "Quel métal recouvre le squelette et les griffes de Wolverine ?", options: ["L'Adamantium", "Le Vibranium", "L'Uru", "Le Titanium"], correct: 0, category: "Comics Lore", explanation: "L'Adamantium, un alliage artificiel qui rend ses os virtuellement indestructibles." },
+      { question: "Quel est le nom de l'intelligence artificielle qui gère l'armure d'Iron Man au début du MCU ?", options: ["J.A.R.V.I.S.", "F.R.I.D.A.Y.", "K.A.R.E.N.", "E.D.I.T.H."], correct: 0, category: "Technologie", explanation: "J.A.R.V.I.S. (Just A Rather Very Intelligent System), qui deviendra plus tard la base de l'esprit de Vision." },
+      { question: "Quelle grande gamme de sets LEGO Marvel permet de construire des méchas (robots géants) pour des personnages comme Spider-Man ou Thanos ?", options: ["Les Marvel Mechs (Armures robotiques)", "Les Hulkbusters", "Les Titan Builders", "Les Action Figures"], correct: 0, category: "Gamme LEGO", explanation: "La gamme des petites armures robotisées (Mechs) à prix abordable cartonne chez les plus jeunes depuis 2020 !" },
+      { question: "Qui est l'auteur légendaire, visage de Marvel, célèbre pour ses caméos dans les films ?", options: ["Stan Lee", "Jack Kirby", "Steve Ditko", "Todd McFarlane"], correct: 0, category: "Créateurs", explanation: "Stan Lee, co-créateur de la majorité des héros iconiques, a fait un caméo dans presque chaque film Marvel jusqu'à son décès." },
+      { question: "Quel alien symbiotique fusionne avec Eddie Brock ?", options: ["Venom", "Carnage", "Riot", "Toxin"], correct: 0, category: "Personnages", explanation: "Venom, l'un des antagonistes (et anti-héros) les plus populaires de l'univers de Spider-Man." },
+      { question: "Dans quel film Captain America soulève-t-il enfin le marteau de Thor ?", options: ["Avengers: Endgame", "Avengers: L'Ère d'Ultron", "Captain America: Civil War", "Thor: Ragnarok"], correct: 0, category: "Cinéma MCU", explanation: "Dans Endgame, lors du combat final épique contre Thanos. Thor crie d'ailleurs : 'Je le savais !'" },
+      { question: "Comment s'appelle l'arbre humanoïde, membre des Gardiens de la Galaxie ?", options: ["Groot", "Korg", "Miek", "Treant"], correct: 0, category: "Personnages", explanation: "Groot, dont le vocabulaire se limite à 'Je s'appelle Groot' (I am Groot)." },
+      { question: "Quel est l'arme forgée par Thor dans Infinity War pour tuer Thanos ?", options: ["Stormbreaker", "Mjolnir", "L'Épée d'Odin", "Le Gant de l'Infini"], correct: 0, category: "Armes & Objets", explanation: "Le Stormbreaker, une hache surpuissante dont le manche est formé par le bras de Groot." },
+      
+      { question: "Dans le Daily Bugle LEGO (76178), quel vilain jaune traverse les vitres du bâtiment en explosant tout ?", options: ["Le Bouffon Vert", "Docteur Octopus", "Sandman (L'Homme-Sable)", "Electro"], correct: 0, category: "Sets Cultes", explanation: "Le Bouffon Vert fait une irruption fracassante en planneur à travers la façade en verre du building !" },
+      { question: "Quel acteur incarne Deadpool au cinéma ?", options: ["Ryan Reynolds", "Hugh Jackman", "Chris Evans", "Tom Holland"], correct: 0, category: "Cinéma", explanation: "Ryan Reynolds, qui a fait du Mercenaire Paltoquet un succès mondial au box-office." },
+      { question: "Quelle est la couleur de la peau de Gamora ?", options: ["Verte", "Bleue", "Rouge", "Violette"], correct: 0, category: "Personnages", explanation: "Gamora (la fille adoptive de Thanos) a la peau verte, contrairement à sa soeur Nebula qui est bleue." },
+      { question: "Quel dieu de la malice est le frère adoptif de Thor ?", options: ["Loki", "Hela", "Balder", "Odin"], correct: 0, category: "Personnages", explanation: "Loki, interprété brillamment par Tom Hiddleston dans le MCU." },
+      { question: "Dans le set LEGO 'Le Saint des Saints' (76108 de 2018), avec quel autre bâtiment est-il accolé ?", options: ["L'appartement de Peter Parker", "Une pizzeria (Pepe's Pizza)", "La Tour Stark", "Un magasin de jouets"], correct: 0, category: "Sets Cultes", explanation: "Dans cette version de l'Infinity Saga, le Sanctum est rattaché à la pizzeria Pepe's Pizza et à l'appartement de Peter." },
+      { question: "Qui est le meilleur ami de Peter Parker dans le MCU ?", options: ["Ned Leeds", "Harry Osborn", "Flash Thompson", "Miles Morales"], correct: 0, category: "Cinéma MCU", explanation: "Ned Leeds, 'le gars dans le fauteuil', grand fan de LEGO dans les films (il détruit l'Étoile de la Mort en LEGO dans Homecoming) !" },
+      { question: "Quel est le nom de l'organisation secrète dirigée par Nick Fury ?", options: ["Le S.H.I.E.L.D.", "H.Y.D.R.A.", "S.W.O.R.D.", "A.I.M."], correct: 0, category: "Lore MCU", explanation: "Le S.H.I.E.L.D. (Strategic Homeland Intervention, Enforcement and Logistics Division)." },
+      { question: "Quelle héroïne possède des pouvoirs de modification de la réalité et de magie du chaos ?", options: ["Scarlet Witch (Wanda Maximoff)", "Captain Marvel", "Jean Grey", "Doctor Strange"], correct: 0, category: "Personnages", explanation: "Scarlet Witch (La Sorcière Rouge). Ses pouvoirs explosent dans la série WandaVision et le film Doctor Strange 2." },
+      { question: "Dans Spider-Man: No Way Home, combien de Spider-Men combattent ensemble ?", options: ["3", "2", "4", "Un seul"], correct: 0, category: "Cinéma MCU", explanation: "Trois ! Tom Holland, Tobey Maguire et Andrew Garfield unissent leurs forces." },
+      { question: "Quel énorme robot construit par Tony Stark pour affronter Hulk a eu plusieurs versions LEGO géantes (dont le 76210 de plus de 4000 pièces) ?", options: ["Le Hulkbuster", "Le Iron Monger", "L'Igor (Mark 38)", "Le Sentinel"], correct: 0, category: "Gros Sets LEGO", explanation: "Le Hulkbuster (l'armure Veronica) a eu plusieurs sets, dont l'immense 76210 aux proportions contestées par certains fans, mais très imposant." },
+
+      { question: "Comment s'appelle l'oncle de Peter Parker dont la mort le pousse à devenir un héros ?", options: ["Oncle Ben", "Oncle Aaron", "Oncle May", "Oncle Richard"], correct: 0, category: "Comics Lore", explanation: "'Un grand pouvoir implique de grandes responsabilités', citation mythique liée à l'Oncle Ben." },
+      { question: "Qui est l'ennemi juré des X-Men, maître du magnétisme ?", options: ["Magnéto", "Apocalypse", "M. Sinistre", "Le Fléau"], correct: 0, category: "Personnages", explanation: "Magnéto (Erik Lehnsherr), qui oscille souvent entre terroriste mutant et allié complexe des X-Men." },
+      { question: "Quel personnage LEGO Marvel a souvent été inclus sous forme de toute petite figurine (microfig) pour respecter son échelle ?", options: ["Ant-Man", "Wasp", "Rocket Raccoon", "Groot bébé"], correct: 0, category: "Minifigures", explanation: "Ant-Man est souvent fourni en version 'statuette' (microfig) d'un seul tenon pour représenter sa taille réduite !" },
+      { question: "Dans quel film les Gardiens de la Galaxie font-ils leur première apparition dans le MCU ?", options: ["Les Gardiens de la Galaxie (2014)", "Avengers: Infinity War", "Thor: Le Monde des Ténèbres", "Iron Man 3"], correct: 0, category: "Cinéma MCU", explanation: "Le premier film Les Gardiens de la Galaxie est sorti en 2014, créant la surprise générale au box-office." },
+      { question: "Comment s'appelle l'IA qui remplace J.A.R.V.I.S. dans l'armure de Tony Stark ?", options: ["F.R.I.D.A.Y.", "E.D.I.T.H.", "H.O.M.E.R.", "V.E.R.O.N.I.C.A."], correct: 0, category: "Technologie", explanation: "F.R.I.D.A.Y. prend le relais dans Avengers: L'Ère d'Ultron après que J.A.R.V.I.S. soit devenu Vision." },
+      { question: "Quel est le nom de l'équipe de super-vilains souvent opposée à Spider-Man, composée de 6 membres ?", options: ["Les Sinister Six (Les Sinistres Six)", "La Confrérie des Mauvais Mutants", "Les Maîtres du Mal", "Le Syndicat du Crime"], correct: 0, category: "Comics Lore", explanation: "Les Sinister Six, comprenant historiquement le Docteur Octopus, le Vautour, Electro, Kraven, Mysterio et l'Homme-Sable." },
+      { question: "Dans le film Black Panther, quel est le nom du cousin de T'Challa qui tente de s'emparer du trône ?", options: ["Erik Killmonger", "M'Baku", "W'Kabi", "Klaw"], correct: 0, category: "Cinéma MCU", explanation: "Erik Killmonger (N'Jadaka), joué par Michael B. Jordan." },
+      { question: "Quel set LEGO Art (les tableaux à construire) permet de créer 3 portraits différents d'Iron Man ou un portrait géant ?", options: ["Marvel Studios Iron Man (31199)", "L'incroyable Spider-Man", "Jim Lee Batman", "World Map"], correct: 0, category: "Gamme LEGO Art", explanation: "Sorti en 2020, ce set LEGO Art permet de réaliser les armures Mark III, Hulkbuster ou Mark LXXXV, et en combinant 3 boîtes, un Iron Man géant." },
+      { question: "Quel sorcier suprême porte l'Oeil d'Agamotto ?", options: ["Doctor Strange", "Wong", "L'Ancien", "Baron Mordo"], correct: 0, category: "Personnages", explanation: "Doctor Strange (Stephen Strange). L'Oeil d'Agamotto abrite d'ailleurs la Pierre du Temps dans le MCU." },
+      { question: "Quel est le vrai nom de Captain America ?", options: ["Steve Rogers", "Bucky Barnes", "John Walker", "Sam Wilson"], correct: 0, category: "Personnages", explanation: "Steve Rogers est le Captain America original, bien que d'autres (comme Sam Wilson) aient repris le bouclier." },
+      
+      { question: "Quelle actrice incarne Black Widow (Natasha Romanoff) dans le MCU ?", options: ["Scarlett Johansson", "Florence Pugh", "Elizabeth Olsen", "Brie Larson"], correct: 0, category: "Cinéma MCU", explanation: "Scarlett Johansson incarne l'espionne russe devenue membre fondatrice des Avengers." },
+      { question: "Comment s'appelle l'organisation criminelle qui s'infiltre dans le S.H.I.E.L.D. depuis des décennies ?", options: ["H.Y.D.R.A.", "A.I.M.", "Ten Rings", "Leviathan"], correct: 0, category: "Lore MCU", explanation: "H.Y.D.R.A., dont le célèbre cri de ralliement est 'Hail Hydra !' (Coupez une tête, il en repoussera deux)." },
+      { question: "Quel véhicule iconique de Spider-Man, souvent moqué car Spider-Man peut juste tisser des toiles, est pourtant souvent édité en LEGO ?", options: ["Le Spider-Buggy", "Le Spider-Jet", "Le Spider-Sous-Marin", "La Spider-Moto"], correct: 0, category: "Gamme LEGO", explanation: "Le Spider-Buggy (ou Spider-Mobile dans les comics) est un classique des jouets LEGO Marvel pour ajouter de la jouabilité !" },
+      { question: "Quelle héroïne devient Miss Marvel dans la série Disney+ ?", options: ["Kamala Khan", "Carol Danvers", "Monica Rambeau", "Kate Bishop"], correct: 0, category: "Cinéma MCU", explanation: "Kamala Khan, une adolescente du New Jersey grande fan de Captain Marvel." },
+      { question: "Qui est le père adoptif de Star-Lord (Peter Quill) qui se sacrifie pour lui ?", options: ["Yondu Udonta", "Ego", "Kraglin", "Taserface"], correct: 0, category: "Cinéma MCU", explanation: "Yondu ('Il était peut-être ton père, mais c'était pas ton papa')." },
+      { question: "Quel groupe de héros a sa propre montagne russe indoor au parc Avengers Campus de Disneyland Paris ?", options: ["Iron Man et Captain Marvel", "Spider-Man", "Les Gardiens de la Galaxie", "Ant-Man"], correct: 0, category: "Anecdotes", explanation: "Avengers Assemble: Flight Force met en scène Iron Man et Captain Marvel (anciennement le Rock 'n' Roller Coaster)." },
+      { question: "Dans LEGO Marvel Super Heroes, comment s'appelle la brique spéciale dorée qui permet de débloquer des bonus ?", options: ["La Brique Dorée (Gold Brick)", "La Brique Rouge", "La Brique Cosmique", "La Pierre d'Infinité"], correct: 0, category: "Jeux Vidéo LEGO", explanation: "Les briques dorées sont l'objectif principal à collecter pour finir le jeu à 100%." },
+      { question: "Quel nom porte la dimension miniature où se perd la mère de Hope Van Dyne dans Ant-Man ?", options: ["Le Royaume Quantique", "La Dimension Noire", "La Zone Négative", "Le Microvers"], correct: 0, category: "Lore MCU", explanation: "Le Royaume Quantique (Quantum Realm), essentiel par la suite pour voyager dans le temps dans Endgame." },
+      { question: "Qui incarne le redoutable Thanos dans le MCU (voix et capture de mouvement) ?", options: ["Josh Brolin", "Vin Diesel", "Andy Serkis", "Tom Hardy"], correct: 0, category: "Cinéma MCU", explanation: "Josh Brolin a prêté ses traits et sa voix grave au Titan fou." },
+      { question: "Quel personnage LEGO Marvel a été le premier à avoir une mini-cape en tissu souple (au lieu d'être rigide) dans la gamme ?", options: ["Doctor Strange", "Thor", "Vision", "Magneto"], correct: 0, category: "Minifigures", explanation: "Doctor Strange a bénéficié de capes très travaillées pour représenter la Cape de Lévitation." },
+
+      { question: "Comment s'appelle l'empire extraterrestre métamorphe en guerre contre les Krees ?", options: ["Les Skrulls", "Les Chitauris", "Les Korbinites", "Les Badoons"], correct: 0, category: "Comics Lore", explanation: "Les Skrulls, capables de changer d'apparence, au centre de l'arc narratif Secret Invasion." },
+      { question: "Quel héros est aveugle mais possède des sens sur-développés, opérant à Hell's Kitchen ?", options: ["Daredevil (Matt Murdock)", "Hawkeye", "Moon Knight", "Iron Fist"], correct: 0, category: "Personnages", explanation: "Daredevil, l'avocat le jour et justicier la nuit, appelé le Diable de Hell's Kitchen." },
+      { question: "Dans le film Iron Man, de quoi Tony Stark parvient-il à s'échapper de la grotte ?", options: ["En construisant l'armure Mark I (avec des bouts de ferraille)", "En appelant l'armée", "Grâce à Captain America", "En payant une rançon"], correct: 0, category: "Cinéma MCU", explanation: "Il fabrique l'armure Mark I 'dans une grotte, avec des bouts de ferraille !' (comme le crie Obadiah Stane)." },
+      { question: "Dans quel grand set modulaire Marvel peut-on trouver une figurine du Fauve (Beast) et Wolverine en train de se détendre ?", options: ["Le X-Mansion (L'Institut Xavier) 76294", "Le Daily Bugle", "Le Sanctum Sanctorum", "La Tour Avengers"], correct: 0, category: "Sets Cultes", explanation: "Sorti fin 2024, le X-Mansion LEGO regorge de références à la série animée X-Men '97 et aux comics." },
+      { question: "Quel est le nom de l'archer de l'équipe des Avengers ?", options: ["Hawkeye (Clint Barton)", "Green Arrow", "Bullseye", "Taskmaster"], correct: 0, category: "Personnages", explanation: "Hawkeye (Oeil-de-Faucon). (Green Arrow est chez DC Comics !)." },
+      { question: "De quelle planète originaire de l'univers de Thor est originaire Valkyrie ?", options: ["Asgard", "Sakaar", "Midgard", "Vanaheim"], correct: 0, category: "Lore MCU", explanation: "Elle est d'Asgard. On la retrouve cependant sur Sakaar dans Thor: Ragnarok, travaillant comme ferrailleuse pour le Grand Maître." },
+      { question: "Quel est le nom de la sœur de Black Panther, génie de la technologie ?", options: ["Shuri", "Okoye", "Nakia", "Ramonda"], correct: 0, category: "Personnages", explanation: "Shuri, qui invente la majeure partie des gadgets et armures en Vibranium du Wakanda." },
+      { question: "Comment appelle-t-on les gardes d'élite chauves et armées de lances du Wakanda ?", options: ["Les Dora Milaje", "Les Valkyries", "Les Chitauris", "L'Ordre Noir"], correct: 0, category: "Lore MCU", explanation: "Les Dora Milaje, dirigées par Okoye, sont les redoutables protectrices du trône." },
+      { question: "Quel héros est apparu en version 'buste' constructible LEGO avec une étoile sur le front (set 76251) ?", options: ["Le casque de Star-Lord", "Le casque d'Iron Man", "Le masque de Spider-Man", "Le casque de Wolverine"], correct: 0, category: "Casques / Bustes", explanation: "Le casque de Star-Lord (Peter Quill) reproduit les tubes respiratoires et les yeux rouges lumineux de son masque." },
+      { question: "Quelle agence temporelle juge les variants dans la série Loki ?", options: ["La TVA (Time Variance Authority)", "Le S.H.I.E.L.D.", "La Garde de l'Infini", "Les Chronomanciens"], correct: 0, category: "Cinéma MCU", explanation: "La TVA (Autorité des Variations Temporelles), dirigée en secret par Celui-Qui-Demeure (Kang)." },
+
+      { question: "Quel est le nom civil de Hulk ?", options: ["Bruce Banner", "Betty Ross", "Emil Blonsky", "Samuel Sterns"], correct: 0, category: "Personnages", explanation: "Le Dr Bruce Banner, brillant scientifique irradié par les rayons Gamma." },
+      { question: "Quel véhicule est au centre du tout premier set LEGO Marvel Super Heroes sorti en 2012 (6865) avec Captain America ?", options: ["La Moto de Captain America (Avenging Cycle)", "Le Jet du S.H.I.E.L.D.", "Le tank de l'Hydra", "L'Héliporteur"], correct: 0, category: "Histoire LEGO", explanation: "Le 'Captain America's Avenging Cycle' était le set d'entrée de gamme de la toute première vague Avengers." },
+      { question: "Qui est le meilleur ami de Captain America, transformé en assassin cyborg ?", options: ["Bucky Barnes (Le Soldat de l'Hiver)", "Sam Wilson", "Clint Barton", "Howard Stark"], correct: 0, category: "Personnages", explanation: "Bucky Barnes a été capturé, lobotomisé et équipé d'un bras bionique par H.Y.D.R.A." },
+      { question: "Quel est le mot déclencheur pour apaiser Hulk dans Avengers : L'Ère d'Ultron (dit par Black Widow) ?", options: ["Le soleil va bientôt se coucher", "Dors gros bébé", "Rassemblement", "Code Vert"], correct: 0, category: "Cinéma MCU", explanation: "La berceuse 'Le soleil va bientôt se coucher' (The sun's getting real low) permet à Banner de reprendre le contrôle." },
+      { question: "Dans le multivers, quel membre des Quatre Fantastiques est élastique ?", options: ["Mr Fantastique (Reed Richards)", "La Torche Humaine", "La Chose", "La Femme Invisible"], correct: 0, category: "Personnages", explanation: "Reed Richards peut étirer et déformer son corps à volonté, et c'est l'un des esprits les plus brillants de Marvel." },
+      { question: "Quel méchant Marvel est connu sous le nom de 'Titan Fou' ?", options: ["Thanos", "Galactus", "Kang", "Ronan l'Accusateur"], correct: 0, category: "Personnages", explanation: "Thanos, obsédé par l'équilibre de l'univers via l'élimination de la moitié de ses habitants." },
+      { question: "Quelle grande figurine LEGO (Big-fig) a été produite en version 'Red' (Rouge) pour représenter une variante d'un héros vert ?", options: ["Red Hulk", "Red Goblin", "Crimson Dynamo", "Abomination"], correct: 0, category: "Minifigures", explanation: "Le Red Hulk (Général Thaddeus Ross) a eu droit à sa propre Big-fig rouge vif dans certains sets." },
+      { question: "Quelle est la couleur de la cape originelle de Vision dans le MCU ?", options: ["Jaune", "Rouge", "Blanche", "Noire"], correct: 0, category: "Personnages", explanation: "Il crée sa propre cape jaune/dorée dans L'Ère d'Ultron en s'inspirant de celle de Thor." },
+      { question: "Sur quelle planète Star-Lord danse-t-il au début du film Les Gardiens de la Galaxie ?", options: ["Morag", "Xandar", "Kyln", "Ego"], correct: 0, category: "Planètes", explanation: "Morag, une planète abandonnée où il récupère l'Orbe (qui contient la Pierre du Pouvoir)." },
+      { question: "Quel célèbre avocat de Marvel défend Peter Parker dans Spider-Man : No Way Home ?", options: ["Matt Murdock (Daredevil)", "Jennifer Walters (She-Hulk)", "Foggy Nelson", "Jeryn Hogarth"], correct: 0, category: "Cinéma MCU", explanation: "Matt Murdock, qui rattrape d'ailleurs une brique lancée à travers la fenêtre avec des réflexes fulgurants ('Je suis un très bon avocat')." },
+      
+      { question: "Dans les comics, de quel objet s'empare Thanos pour vaincre la moitié de l'univers dans 'Le Défi de Thanos' ?", options: ["Le Gant de l'Infini", "Le Cube Cosmique", "L'Anéantisseur Ultime", "La Couronne du Serpent"], correct: 0, category: "Comics Lore", explanation: "Le Gant de l'Infini, tout comme dans le MCU." },
+      { question: "Quel grand événement crossover Marvel voit les héros s'affronter sur le 'Battleworld' créé par le Beyonder (ou Fatalis) ?", options: ["Secret Wars", "Civil War", "House of M", "Secret Invasion"], correct: 0, category: "Comics Lore", explanation: "Secret Wars, l'une des sagas les plus emblématiques de Marvel, dont une adaptation au cinéma est prévue." },
+      { question: "Quel super-héros a le pouvoir de communiquer avec les fourmis ?", options: ["Ant-Man", "Spider-Man", "Wasp", "Yellowjacket"], correct: 0, category: "Personnages", explanation: "Ant-Man, grâce au casque de communication EMP inventé par Hank Pym." },
+      { question: "Quelle pièce LEGO est très souvent utilisée pour représenter les toiles de Spider-Man ?", options: ["Un accessoire en forme de filet / liane blanche souple", "Une chaîne grise classique", "Un élastique de bureau", "Une corde avec tenons"], correct: 0, category: "Pièces LEGO", explanation: "LEGO utilise souvent des lianes recolorées en blanc ou des pièces 'Web' spécifiques avec des boucles ou des filets moulés." },
+      { question: "Qui est le mentor de Tony Stark qui se retourne contre lui dans le premier Iron Man ?", options: ["Obadiah Stane (Iron Monger)", "Justin Hammer", "Aldrich Killian", "Alexander Pierce"], correct: 0, category: "Cinéma MCU", explanation: "Obadiah Stane, joué par Jeff Bridges, voulait prendre le contrôle de Stark Industries." },
+      { question: "Quel est le nom du raton laveur cybernétique des Gardiens de la Galaxie ?", options: ["Rocket", "Cosmo", "Howard", "Slapstick"], correct: 0, category: "Personnages", explanation: "Rocket (ou Rocket Raccoon), génie de l'ingénierie et amateur d'armes lourdes." },
+      { question: "Lequel de ces personnages N'EST PAS un membre original des Avengers dans le MCU (film de 2012) ?", options: ["Ant-Man", "Black Widow", "Thor", "Hawkeye"], correct: 0, category: "Lore MCU", explanation: "Ant-Man n'était pas dans le film de 2012. L'équipe originale du MCU est Iron Man, Cap, Thor, Hulk, Black Widow et Hawkeye." },
+      { question: "Qui a dit 'Je s'appelle Groot' ? (C'est un cadeau !)", options: ["Groot", "Rocket", "Star-Lord", "Thanos"], correct: 0, category: "Citations", explanation: "Groot, évidemment. (Même si Thor comprend qu'il a pris l'option Groot en deuxième langue !)" },
+      { question: "Quel set Marvel 'Brick Sketches' (Portraits en 2D) met en scène un héros de Gotham... euh non, de New-York ?", options: ["Iron Man ou Spider-Man", "Captain America", "Hulk", "Groot"], correct: 0, category: "Gamme LEGO", explanation: "Des Brick Sketches de Iron Man et Spider-Man ont été produits pour les exposer sur un bureau." },
+      { question: "Dans le film Thor: Ragnarok, qui est le champion incontesté de l'arène de Sakaar ?", options: ["Hulk", "Beta Ray Bill", "Korg", "Arès"], correct: 0, category: "Cinéma MCU", explanation: "Hulk, sous les traits du grand champion vert, à la grande joie de Thor ('C'est un collègue de travail !')." },
+
+      { question: "Quel est le nom du pays fictif dirigé par le Docteur Fatalis (Doctor Doom) ?", options: ["La Latvérie", "Le Wakanda", "Sokovie", "Genosha"], correct: 0, category: "Comics Lore", explanation: "La Latvérie, une nation située en Europe de l'Est." },
+      { question: "Quel célèbre vampire chasseur de vampires fait partie de l'univers Marvel ?", options: ["Blade", "Morbius", "Dracula", "Deacon Frost"], correct: 0, category: "Personnages", explanation: "Blade (Eric Brooks), le 'Daywalker'." },
+      { question: "Quel est l'artefact cosmique cubique bleu utilisé dans Avengers (2012) pour ouvrir le portail ?", options: ["Le Tesseract", "L'Éther", "L'Orbe", "L'Œil d'Agamotto"], correct: 0, category: "Lore MCU", explanation: "Le Tesseract, qui contient en réalité la Pierre de l'Espace." },
+      { question: "Quel est le vrai nom du Punisher ?", options: ["Frank Castle", "Marc Spector", "Wade Wilson", "John Walker"], correct: 0, category: "Personnages", explanation: "Frank Castle, l'anti-héros impitoyable de Marvel." },
+      { question: "Dans le MCU, qui détruit le marteau de Thor (Mjolnir) avec une seule main ?", options: ["Hela", "Thanos", "Surtur", "Kurse"], correct: 0, category: "Cinéma MCU", explanation: "Hela, la déesse de la mort et soeur de Thor, dans Thor: Ragnarok." },
+      { question: "Quel format de figurines avec de très grosses têtes carrées est très populaire chez LEGO Marvel (ex: 41590 Iron Man) ?", options: ["Les BrickHeadz", "Les Microfighters", "Les Mighty Micros", "Les Minilanders"], correct: 0, category: "Gamme LEGO", explanation: "Les BrickHeadz, très prisés par les collectionneurs pour leur style cartoon et cubique." },
+      { question: "Quel est l'antagoniste principal du film Black Panther : Wakanda Forever ?", options: ["Namor", "Killmonger", "Klaw", "Attuma"], correct: 0, category: "Cinéma MCU", explanation: "Namor, le roi du royaume sous-marin de Talokan." },
+      { question: "Quel vilain MCU dit : 'L'échec est une chose douloureuse. Il mène à l'égarement...' ?", options: ["Thanos", "Loki", "Ultron", "Crâne Rouge"], correct: 0, category: "Citations", explanation: "Thanos au début d'Avengers: Infinity War, en parlant à Loki." },
+      { question: "Qui est le chien doté de pouvoirs télépathiques dans les Gardiens de la Galaxie Vol. 3 ?", options: ["Cosmo", "Lockjaw", "Lucky le chien pizza", "Goose"], correct: 0, category: "Personnages", explanation: "Cosmo, une chienne astronaute soviétique très attachante." },
+      { question: "Pour quel anniversaire la gamme LEGO Marvel a-t-elle sorti une collection spéciale de sets avec des boîtes grises en 2022 ?", options: ["La Saga de l'Infini (Infinity Saga)", "Les 10 ans de LEGO Marvel", "Les 80 ans de Marvel", "Les 20 ans du MCU"], correct: 0, category: "Histoire LEGO", explanation: "La gamme 'Infinity Saga' revisite les scènes culte des anciens films du MCU avec des techniques modernes." }
+    ];
+
+    /**
+     * MOTEUR AUDIO (STYLE MARVEL : RÉPULSEUR / CHOC)
+     */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+
+      initCtx() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playRepulsorCorrect() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        // Bruit de charge aiguë type Iron Man
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.3);
+
+        gain.gain.setValueAtTime(0, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.3, this.ctx.currentTime + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.4);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.4);
+      }
+
+      playThudWrong() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        // Choc sourd type coup de bouclier lourd
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.2);
+
+        gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.25);
+      }
+
+      playTick() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+
+        gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      }
+    }
+
+    /**
+     * CONTRÔLEUR PRINCIPAL DE L'APPLICATION
+     */
+    class QuizApp {
+      constructor() {
+        this.questionsPool = [...INITIAL_QUESTIONS];
+        this.sound = new SoundEngine();
+
+        this.gameMode = 'solo';
+        this.activeQuestions = [];
+        this.currentIndex = 0;
+        this.totalQuestionsCount = 10;
+
+        this.soloScore = 0;
+        this.teamAScore = 0;
+        this.teamBScore = 0;
+        this.currentTurn = 'teamA';
+        
+        this.playerName = 'Agent';
+        this.teamAName = 'Avengers';
+        this.teamBName = 'X-Men';
+        this.pendingMode = 'solo';
+
+        this.timerEnabled = true;
+        this.timerSeconds = 15;
+        this.timerInterval = null;
+        this.hasAnswered = false;
+
+        this.initUI();
+      }
+
+      initUI() {
+        document.getElementById('poolCountText').innerText = this.questionsPool.length;
+      }
+
+      toggleSound() {
+        this.sound.enabled = !this.sound.enabled;
+        const iconOn = document.getElementById('soundIconOn');
+        const iconOff = document.getElementById('soundIconOff');
+        if (this.sound.enabled) {
+          iconOn.classList.remove('hidden');
+          iconOff.classList.add('hidden');
+          this.sound.playTick();
+        } else {
+          iconOn.classList.add('hidden');
+          iconOff.classList.remove('hidden');
+        }
+      }
+
+      showScreen(screenId) {
+        clearInterval(this.timerInterval);
+        document.getElementById('screen-welcome').classList.add('hidden');
+        document.getElementById('screen-quiz').classList.add('hidden');
+        document.getElementById('screen-results').classList.add('hidden');
+        document.getElementById('screen-leaderboard').classList.add('hidden');
+
+        document.getElementById(`screen-${screenId}`).classList.remove('hidden');
+      }
+
+      openNameSetup(mode) {
+        this.pendingMode = mode;
+        document.getElementById('nameSetupModal').classList.remove('hidden');
+        
+        if (mode === 'solo') {
+          document.getElementById('soloNameInput').classList.remove('hidden');
+          document.getElementById('duelNameInputs').classList.add('hidden');
+          document.getElementById('participantName').required = true;
+          document.getElementById('team1Name').required = false;
+          document.getElementById('team2Name').required = false;
+          setTimeout(() => document.getElementById('participantName').focus(), 50);
+        } else {
+          document.getElementById('soloNameInput').classList.add('hidden');
+          document.getElementById('duelNameInputs').classList.remove('hidden');
+          document.getElementById('participantName').required = false;
+          document.getElementById('team1Name').required = true;
+          document.getElementById('team2Name').required = true;
+          setTimeout(() => document.getElementById('team1Name').focus(), 50);
+        }
+      }
+
+      closeNameSetup() {
+        document.getElementById('nameSetupModal').classList.add('hidden');
+        document.getElementById('nameSetupForm').reset();
+      }
+
+      startWithNames(e) {
+        e.preventDefault();
+        if (this.pendingMode === 'solo') {
+          this.playerName = document.getElementById('participantName').value.trim() || 'Agent';
+        } else {
+          this.teamAName = document.getElementById('team1Name').value.trim() || 'Équipe 1';
+          this.teamBName = document.getElementById('team2Name').value.trim() || 'Équipe 2';
+        }
+        this.closeNameSetup();
+        this.setupGame(this.pendingMode);
+      }
+
+      setupGame(mode) {
+        this.sound.initCtx();
+        this.gameMode = mode;
+        this.timerEnabled = document.getElementById('timerEnabledCheck').checked;
+
+        this.totalQuestionsCount = 10;
+
+        const shuffled = [...this.questionsPool].sort(() => 0.5 - Math.random());
+        const targetCount = Math.min(this.totalQuestionsCount, shuffled.length);
+        this.activeQuestions = shuffled.slice(0, targetCount);
+
+        this.currentIndex = 0;
+        this.soloScore = 0;
+        this.teamAScore = 0;
+        this.teamBScore = 0;
+        this.currentTurn = 'teamA';
+
+        if (this.gameMode === 'duel') {
+          document.getElementById('duelHeaderWidget').classList.remove('hidden');
+          document.getElementById('soloHeaderWidget').classList.add('hidden');
+          document.getElementById('teamTurnIndicator').classList.remove('hidden');
+          document.getElementById('uiTeamAName').innerText = this.teamAName;
+          document.getElementById('uiTeamBName').innerText = this.teamBName;
+          this.updateDuelHeader();
+        } else {
+          document.getElementById('duelHeaderWidget').classList.add('hidden');
+          document.getElementById('soloHeaderWidget').classList.remove('hidden');
+          document.getElementById('teamTurnIndicator').classList.add('hidden');
+          document.getElementById('uiSoloName').innerText = this.playerName.toUpperCase();
+          document.getElementById('soloScore').innerText = '0';
+        }
+
+        const timerContainer = document.getElementById('timerContainer');
+        if (this.timerEnabled) {
+          timerContainer.classList.remove('hidden');
+        } else {
+          timerContainer.classList.add('hidden');
+        }
+
+        this.showScreen('quiz');
+        this.loadQuestion();
+      }
+
+      restartWithSameSettings() {
+        this.setupGame(this.gameMode);
+      }
+
+      updateDuelHeader() {
+        document.getElementById('teamAScore').innerText = this.teamAScore;
+        document.getElementById('teamBScore').innerText = this.teamBScore;
+
+        const teamABox = document.getElementById('teamAStatus');
+        const teamBBox = document.getElementById('teamBStatus');
+        const turnText = document.getElementById('teamTurnText');
+
+        if (this.currentTurn === 'teamA') {
+          teamABox.className = "px-3 py-1.5 rounded-lg border border-blue-400 bg-blue-900/60 shadow-lg shadow-blue-500/20";
+          teamBBox.className = "px-3 py-1.5 rounded-lg border border-slate-600 bg-slate-800/60 opacity-60";
+          turnText.innerHTML = `Au tour de : <span class="text-blue-400 font-black">${this.teamAName.toUpperCase()}</span> !`;
+        } else {
+          teamBBox.className = "px-3 py-1.5 rounded-lg border border-red-500 bg-red-900/60 shadow-lg shadow-red-500/20";
+          teamABox.className = "px-3 py-1.5 rounded-lg border border-slate-600 bg-slate-800/60 opacity-60";
+          turnText.innerHTML = `Au tour de : <span class="text-red-500 font-black">${this.teamBName.toUpperCase()}</span> !`;
+        }
+      }
+
+      loadQuestion() {
+        this.hasAnswered = false;
+        clearInterval(this.timerInterval);
+
+        const q = this.activeQuestions[this.currentIndex];
+        document.getElementById('currentRoundBadge').innerText = `Q${this.currentIndex + 1} / ${this.activeQuestions.length}`;
+        document.getElementById('categoryBadge').innerText = q.category || 'Marvel Universe';
+
+        const catBadge = document.getElementById('categoryBadge');
+        if (q.category && q.category.includes('LEGO')) {
+          catBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-red-600 text-white shadow shadow-red-500/30';
+        } else {
+          catBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-blue-600 text-white shadow shadow-blue-500/30';
+        }
+
+        document.getElementById('questionText').innerText = q.question;
+        document.getElementById('feedbackContainer').classList.add('hidden');
+
+        const grid = document.getElementById('optionsGrid');
+        grid.innerHTML = '';
+
+        const choices = q.options.map((opt, idx) => ({
+          text: opt,
+          isCorrect: idx === q.correct
+        }));
+
+        choices.sort(() => 0.5 - Math.random());
+
+        const letters = ['A', 'B', 'C', 'D'];
+        choices.forEach((choice, i) => {
+          const btn = document.createElement('button');
+          btn.className = `option-btn group w-full p-4 rounded-xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 hover:border-red-500 text-left flex items-center justify-between shadow-md focus:outline-none`;
+          btn.innerHTML = `
+            <div class="flex items-center gap-3.5">
+              <span class="w-8 h-8 rounded-lg bg-slate-900 group-hover:bg-red-600 group-hover:text-white flex items-center justify-center font-marvel font-bold text-sm text-red-400 border border-slate-700 transition">
+                ${letters[i] || '•'}
+              </span>
+              <span class="text-sm md:text-base font-semibold text-slate-200">${choice.text}</span>
+            </div>
+            <div class="option-icon opacity-0 transition"></div>
+          `;
+
+          btn.onclick = () => this.handleAnswer(choice.isCorrect, btn, choices);
+          grid.appendChild(btn);
+        });
+
+        if (this.timerEnabled) {
+          this.startTimer();
+        }
+      }
+
+      startTimer() {
+        this.timerSeconds = 15;
+        const box = document.getElementById('timerBox');
+        box.innerText = this.timerSeconds;
+        box.className = "w-11 h-11 rounded-full bg-slate-900 border-2 border-red-500 flex items-center justify-center font-black text-red-400 text-lg transition-colors shadow-[0_0_10px_rgba(236,29,36,0.3)]";
+
+        this.timerInterval = setInterval(() => {
+          this.timerSeconds--;
+          box.innerText = this.timerSeconds;
+
+          if (this.timerSeconds <= 5) {
+            box.className = "w-11 h-11 rounded-full bg-red-950/80 border-2 border-red-500 flex items-center justify-center font-black text-red-400 text-lg animate-danger-pulse shadow-[0_0_20px_rgba(236,29,36,0.6)]";
+            this.sound.playTick();
+          }
+
+          if (this.timerSeconds <= 0) {
+            clearInterval(this.timerInterval);
+            this.handleTimeout();
+          }
+        }, 1000);
+      }
+
+      handleTimeout() {
+        if (this.hasAnswered) return;
+        this.hasAnswered = true;
+        this.sound.playThudWrong();
+        this.revealAnswers(null, false, true);
+      }
+
+      handleAnswer(isCorrect, clickedBtn, choices) {
+        if (this.hasAnswered) return;
+        this.hasAnswered = true;
+        clearInterval(this.timerInterval);
+
+        if (isCorrect) {
+          this.sound.playRepulsorCorrect();
+          if (typeof confetti === 'function') {
+            confetti({
+              particleCount: 40,
+              spread: 60,
+              colors: ['#ec1d24', '#ffffff', '#3b82f6'],
+              origin: { y: 0.7 }
+            });
+          }
+
+          if (this.gameMode === 'solo') {
+            this.soloScore++;
+            document.getElementById('soloScore').innerText = this.soloScore;
+          } else {
+            if (this.currentTurn === 'teamA') {
+              this.teamAScore++;
+            } else {
+              this.teamBScore++;
+            }
+          }
+        } else {
+          this.sound.playThudWrong();
+        }
+
+        this.revealAnswers(clickedBtn, isCorrect, false);
+      }
+
+      revealAnswers(clickedBtn, isCorrect, isTimeout) {
+        const q = this.activeQuestions[this.currentIndex];
+        const correctText = q.options[q.correct];
+        const buttons = document.querySelectorAll('#optionsGrid button');
+
+        buttons.forEach(btn => {
+          btn.disabled = true;
+          const text = btn.querySelector('.font-semibold').innerText;
+          const icon = btn.querySelector('.option-icon');
+
+          if (text === correctText) {
+            btn.className = "w-full p-4 rounded-xl bg-emerald-900/60 border-2 border-emerald-500 text-left flex items-center justify-between";
+            icon.innerHTML = `<span class="text-emerald-400 font-black text-xl">✓</span>`;
+            icon.classList.remove('opacity-0');
+          } else if (btn === clickedBtn && !isCorrect) {
+            btn.className = "w-full p-4 rounded-xl bg-red-900/60 border-2 border-red-500 text-left flex items-center justify-between";
+            icon.innerHTML = `<span class="text-red-400 font-black text-xl">✕</span>`;
+            icon.classList.remove('opacity-0');
+          } else {
+            btn.className = "w-full p-4 rounded-xl bg-slate-900/40 border-2 border-slate-700 text-left opacity-30 flex items-center justify-between";
+          }
+        });
+
+        const feedbackContainer = document.getElementById('feedbackContainer');
+        const feedbackTitle = document.getElementById('feedbackTitle');
+        const feedbackExplanation = document.getElementById('feedbackExplanation');
+
+        feedbackContainer.classList.remove('hidden');
+
+        if (isTimeout) {
+          feedbackContainer.className = "mt-6 p-4 rounded-xl border-l-4 border-amber-500 bg-amber-950/30 text-left space-y-2";
+          feedbackTitle.innerText = "⏳ LE TEMPS EST ÉCOULÉ !";
+          feedbackTitle.className = "font-marvel font-bold text-xl text-amber-400 uppercase";
+        } else if (isCorrect) {
+          feedbackContainer.className = "mt-6 p-4 rounded-xl border-l-4 border-emerald-500 bg-emerald-950/30 text-left space-y-2";
+          feedbackTitle.innerText = "⭐ EXCELLENTE RÉPONSE !";
+          feedbackTitle.className = "font-marvel font-bold text-xl text-emerald-400 uppercase";
+        } else {
+          feedbackContainer.className = "mt-6 p-4 rounded-xl border-l-4 border-red-500 bg-red-950/30 text-left space-y-2";
+          feedbackTitle.innerText = "❌ OUPS... RATÉ !";
+          feedbackTitle.className = "font-marvel font-bold text-xl text-red-400 uppercase";
+        }
+
+        feedbackExplanation.innerText = q.explanation || "Bravo pour l'effort d'équipe !";
+        
+        if (this.gameMode === 'duel') {
+          this.updateDuelHeader();
+        }
+      }
+
+      nextQuestion() {
+        this.currentIndex++;
+        if (this.currentIndex < this.activeQuestions.length) {
+          if (this.gameMode === 'duel') {
+            this.currentTurn = (this.currentTurn === 'teamA') ? 'teamB' : 'teamA';
+            this.updateDuelHeader();
+          }
+          this.loadQuestion();
+        } else {
+          this.showResults();
+        }
+      }
+
+      showResults() {
+        this.showScreen('results');
+
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 150,
+            spread: 100,
+            colors: ['#ec1d24', '#ffffff', '#3b82f6', '#fbbf24'],
+            origin: { y: 0.4 }
+          });
+        }
+
+        const mottos = [
+          "Que vos ventes rayonnent comme le réacteur Arc de Tony Stark aujourd'hui !",
+          "Avengers... Rassemblement sur le mur Pick-A-Brick !",
+          "Un grand pouvoir implique d'excellents conseils clients en boutique !",
+          "Défendez ce magasin avec la force de Hulk et la précision de Hawkeye !"
+        ];
+        document.getElementById('dailyMotto').innerText = mottos[Math.floor(Math.random() * mottos.length)];
+
+        if (this.gameMode === 'solo') {
+          document.getElementById('soloScoreDisplay').classList.remove('hidden');
+          document.getElementById('duelScoreDisplay').classList.add('hidden');
+
+          const finalScore = this.soloScore;
+          const total = this.activeQuestions.length;
+          document.getElementById('finalScoreVal').innerText = `${finalScore} / ${total}`;
+
+          let rank = "";
+          let icon = "🛡️";
+          const ratio = finalScore / total;
+
+          if (ratio === 1) {
+            rank = "Directeur du S.H.I.E.L.D. (Nick Fury)";
+            icon = "🦅";
+          } else if (ratio >= 0.75) {
+            rank = "Avenger de Premier Rang";
+            icon = "⚡";
+          } else if (ratio >= 0.5) {
+            rank = "Agent Opérationnel Local";
+            icon = "🕸️";
+          } else {
+            rank = "Recrue d'Hydra (Un café s'impose !)";
+            icon = "☕";
+          }
+
+          document.getElementById('rankTitleBadge').innerText = `RANG : ${rank}`;
+          document.getElementById('resultTrophyIcon').innerText = icon;
+          
+          this.saveScoreToLocal({ mode: 'solo', name: this.playerName, score: finalScore, total: total, rank: rank });
+        } else {
+          document.getElementById('soloScoreDisplay').classList.add('hidden');
+          document.getElementById('duelScoreDisplay').classList.remove('hidden');
+
+          document.getElementById('finalUiTeamAName').innerText = this.teamAName;
+          document.getElementById('finalUiTeamBName').innerText = this.teamBName;
+          document.getElementById('finalTeamAScore').innerText = this.teamAScore;
+          document.getElementById('finalTeamBScore').innerText = this.teamBScore;
+
+          const duelWinnerText = document.getElementById('duelWinnerText');
+          let winner = "";
+          if (this.teamAScore > this.teamBScore) {
+            duelWinnerText.innerHTML = `🚀 VICTOIRE ÉCRASANTE : <span class='text-blue-400'>${this.teamAName}</span> !`;
+            document.getElementById('resultTrophyIcon').innerText = "🦅";
+            winner = this.teamAName;
+          } else if (this.teamBScore > this.teamAScore) {
+            duelWinnerText.innerHTML = `💥 VICTOIRE ABSOLUE : <span class='text-red-400'>${this.teamBName}</span> !`;
+            document.getElementById('resultTrophyIcon').innerText = "💀";
+            winner = this.teamBName;
+          } else {
+            duelWinnerText.innerHTML = "🤝 ÉGALITÉ ! LE MULTIVERS EST EN PAIX.";
+            document.getElementById('resultTrophyIcon').innerText = "⚖️";
+            winner = "Égalité";
+          }
+          
+          this.saveScoreToLocal({ 
+            mode: 'duel', 
+            teamA: this.teamAName, scoreA: this.teamAScore,
+            teamB: this.teamBName, scoreB: this.teamBScore,
+            winner: winner, total: this.activeQuestions.length
+          });
+        }
+      }
+
+      // UTILISE UNE NOUVELLE CLÉ POUR NE PAS ÉCRASER LES SCORES STAR WARS !
+      saveScoreToLocal(data) {
+        data.date = new Date().toISOString();
+        let scores = JSON.parse(localStorage.getItem('legoMarvelQuizScores')) || [];
+        scores.push(data);
+        localStorage.setItem('legoMarvelQuizScores', JSON.stringify(scores));
+      }
+      
+      showLeaderboard() {
+        this.showScreen('leaderboard');
+        this.renderLeaderboardList('solo');
+      }
+      
+      renderLeaderboardList(filterMode) {
+        const tabSolo = document.getElementById('tabSolo');
+        const tabDuel = document.getElementById('tabDuel');
+        if (filterMode === 'solo') {
+          tabSolo.className = "text-red-400 border-b-2 border-red-500 px-4 py-2 transition";
+          tabDuel.className = "text-slate-500 hover:text-slate-300 px-4 py-2 transition";
+        } else {
+          tabDuel.className = "text-red-400 border-b-2 border-red-500 px-4 py-2 transition";
+          tabSolo.className = "text-slate-500 hover:text-slate-300 px-4 py-2 transition";
+        }
+        
+        const listContainer = document.getElementById('leaderboardList');
+        listContainer.innerHTML = '';
+        
+        let scores = JSON.parse(localStorage.getItem('legoMarvelQuizScores')) || [];
+        let filteredScores = scores.filter(s => s.mode === filterMode);
+        
+        if (filteredScores.length === 0) {
+          listContainer.innerHTML = `<div class="text-center py-10 text-slate-500 italic text-sm">Les archives sont vides. Formez votre équipe !</div>`;
+          return;
+        }
+        
+        if (filterMode === 'solo') {
+          filteredScores.sort((a, b) => {
+            const ratioA = a.score / a.total;
+            const ratioB = b.score / b.total;
+            if (ratioB !== ratioA) return ratioB - ratioA;
+            return new Date(b.date) - new Date(a.date);
+          });
+          
+          filteredScores.forEach((s, idx) => {
+            const date = new Date(s.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute:'2-digit' }).replace(':', 'h');
+            const ratio = Math.round((s.score / s.total) * 100);
+            listContainer.innerHTML += `
+              <div class="flex items-center justify-between p-4 rounded-xl bg-slate-900/60 border border-slate-700/80 hover:bg-slate-800/80 transition shadow-sm">
+                <div class="flex items-center gap-4">
+                  <div class="w-8 text-center text-xl font-bold font-marvel ${idx === 0 ? 'text-red-500 text-3xl' : (idx === 1 ? 'text-slate-300 text-2xl' : (idx === 2 ? 'text-amber-700 text-2xl' : 'text-slate-500'))}">
+                    #${idx + 1}
+                  </div>
+                  <div>
+                    <div class="font-black font-marvel text-white tracking-wider text-lg uppercase">${s.name}</div>
+                    <div class="text-[11px] text-slate-400">${date} - <span class="italic text-slate-300 font-semibold">${s.rank}</span></div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="font-bold text-red-500 font-marvel text-2xl">${s.score} <span class="text-sm text-slate-500">/ ${s.total}</span></div>
+                  <div class="text-[10px] uppercase font-bold text-slate-500">${ratio}% de réussite</div>
+                </div>
+              </div>
+            `;
+          });
+        } else {
+          filteredScores.sort((a, b) => new Date(b.date) - new Date(a.date));
+          
+          filteredScores.forEach((s, idx) => {
+            const date = new Date(s.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute:'2-digit' }).replace(':', 'h');
+            listContainer.innerHTML += `
+              <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-700/80 space-y-3 shadow-sm">
+                <div class="flex justify-between items-center text-xs text-slate-400">
+                  <span class="font-bold">Affrontement du ${date}</span>
+                  <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-600 font-semibold ${s.winner === 'Égalité' ? 'text-slate-300' : 'text-red-400'} uppercase font-marvel">Vainqueur : ${s.winner}</span>
+                </div>
+                <div class="flex items-stretch justify-between gap-3">
+                  <div class="flex-1 text-center bg-blue-950/30 rounded-lg py-2 border-b-2 border-blue-600 flex flex-col justify-center">
+                    <span class="block text-xs font-black uppercase text-blue-400 truncate px-1 font-marvel" title="${s.teamA}">${s.teamA}</span>
+                    <span class="text-2xl font-bold font-marvel text-white">${s.scoreA} <span class="text-xs text-slate-500">/ ${s.total}</span></span>
+                  </div>
+                  <div class="flex items-center px-1 font-black text-slate-600 text-lg italic font-marvel">VS</div>
+                  <div class="flex-1 text-center bg-red-950/30 rounded-lg py-2 border-b-2 border-red-600 flex flex-col justify-center">
+                    <span class="block text-xs font-black uppercase text-red-400 truncate px-1 font-marvel" title="${s.teamB}">${s.teamB}</span>
+                    <span class="text-2xl font-bold font-marvel text-white">${s.scoreB} <span class="text-xs text-slate-500">/ ${s.total}</span></span>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        }
+      }
+      
+      clearLeaderboard() {
+        if (confirm("Protocole Clean Slate : Êtes-vous sûr de vouloir effacer tout l'historique Marvel ?")) {
+          localStorage.removeItem('legoMarvelQuizScores');
+          this.renderLeaderboardList('solo');
+        }
+      }
+
+      openCustomModal() {
+        document.getElementById('customModal').classList.remove('hidden');
+      }
+
+      closeCustomModal() {
+        document.getElementById('customModal').classList.add('hidden');
+        document.getElementById('addQuestionForm').reset();
+      }
+
+      handleCustomQuestionSubmit(e) {
+        e.preventDefault();
+        const text = document.getElementById('custQText').value.trim();
+        const correct = document.getElementById('custQCorrect').value.trim();
+        const wrong1 = document.getElementById('custQWrong1').value.trim();
+        const wrong2 = document.getElementById('custQWrong2').value.trim();
+        const wrong3 = document.getElementById('custQWrong3').value.trim();
+        const expl = document.getElementById('custQExpl').value.trim() || "Question exclusive du magasin !";
+
+        if (!text || !correct || !wrong1) return;
+
+        this.questionsPool.unshift({
+          question: text,
+          options: [correct, wrong1, wrong2 || "Autre Univers", wrong3 || "Hydra"],
+          correct: 0,
+          category: "Mission Exclusive",
+          explanation: expl
+        });
+
+        this.initUI();
+        this.closeCustomModal();
+        this.sound.playRepulsorCorrect();
+      }
+    }
+
+    const initApp = () => {
+      if (!window.app) {
+        window.app = new QuizApp();
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>
