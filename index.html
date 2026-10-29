@@ -224,10 +224,10 @@
         <div id="feedbackContainer" class="hidden mt-6 p-4 rounded-xl border transition-all text-center space-y-2">
           <div id="feedbackTitle" class="font-marvel font-bold text-xl tracking-wide uppercase"></div>
           <p id="feedbackExplanation" class="text-sm text-slate-300"></p>
-          <button id="nextBtn" onclick="app.nextQuestion()" class="mt-4 px-6 py-2.5 bg-marvel-red hover:bg-red-700 text-white font-extrabold font-marvel text-lg tracking-wider rounded-xl transition shadow-lg inline-flex items-center gap-2">
+          < id="nextBtn" onclick="app.nextQuestion()" class="mt-4 px-6 py-2.5 bg-marvel-red hover:bg-red-700 text-white font-extrabold font-marvel text-lg tracking-wider rounded-xl transition shadow-lg inline-flex items-center gap-2">
             <span>QUESTION SUIVANTE</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-          </button>
+          </>
         </div>
       </div>
     </section>
@@ -284,7 +284,7 @@
 
         <!-- Boutons d'action -->
         <div class="flex flex-col sm:flex-row gap-3 justify-center pt-4 relative z-10">
-          <button onclick="app.showScreen('welcome')" class="px-6 py-3 rounded-xl bg-marvel-red hover:bg-red-700 text-white font-marvel tracking-wider text-lg transition shadow-lg shadow-red-900/50">
+          < onclick="app.showScreen('welcome')" class="px-6 py-3 rounded-xl bg-marvel-red hover:bg-red-700 text-white font-marvel tracking-wider text-lg transition shadow-lg shadow-red-900/50">
             MENU PRINCIPAL
           </button>
           <button onclick="app.restartWithSameSettings()" class="px-6 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-marvel tracking-wider text-lg border border-slate-600 transition">
